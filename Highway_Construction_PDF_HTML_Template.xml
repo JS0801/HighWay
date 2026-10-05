@@ -1,0 +1,325 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlfooter">
+            
+<table class="footer" style="width: 100%;"><tr>
+<td></td>
+<td align="right"><pagenumber/> of <totalpages/></td>
+</tr></table>
+
+        </macro>
+    </macrolist>
+    <style>
+		* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+        table {
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+    </style>
+</head>
+<body header="nlheader" header-height="13%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+
+  <table class="header" style="width: 100%; height: 100.787px;"><tr>
+<td style="width: 15%;" rowspan="9" align="left"><#if subsidiary.logo?length != 0 > <@filecabinet nstype="image" style="margin: 0px; float: left; width: 175px; height: 91px; padding-right: 10px;" src="${subsidiary.logo@url}" /> <#elseif companyInformation.logoUrl?length != 0 > <@filecabinet nstype="image" style="margin: 0px; float: left; width: 175px; height: 91px; padding-right: 10px;" src="${companyInformation.logoUrl}" /> </#if></td>
+<td style="width: 85%; font-size: 15pt; padding-bottom: 15px;" align="right"><b>Highway Specialty Company, Inc.</b></td>
+</tr>
+  <tr><td style="width: 85%; padding-bottom: 10px;" align="right"><b>TRAFFIC SAFETY SUPPLY, TRAFFIC CONTROL, SIGNS AND GUARDRAIL</b></td></tr>
+  <tr><td style="width: 85%; font-size: 8pt;" align="right">MAILING: PO BOX 141 PALO CEDRO, CA 96073</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">SACRAMENTO OFFICE: 4212 ROSEVILLE ROAD NORTH HIGHLANDS, CA 95660</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">REDDING OFFICE: 6591 EASTSIDE ROAD REDDING, CA 96001</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">COAST OFFICE: 3749 WEST END COURT, ARCATA, CA 95521</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">LICENSE # 1003147 A, C13, C31, C32, C61-D42, A UNION CONTRACTOR</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">PHONE 530-949-5685&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAX 855-846-5806</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">CALIFORNIA CERTIFIED SMALL BUSINESS # 1559500&nbsp;&nbsp;&nbsp;&nbsp;DIR REGISTRATION # 1000022123</td></tr>
+</table>
+<hr/>
+  <table style="width: 100%;">
+    <tr>
+      <td style="width: 15%;" rowspan="2"><b>ATTENTION:</b></td>
+      <td style="width: 25%;" rowspan="2">${record.billaddress}</td>
+      <td style="width: 60%;" align="right">${.now?string("MMMM d, yyyy")}</td>
+    </tr>
+    <tr><td style="width: 60%;" align="right">QUOTE VALID FOR 15 DAYS ONLY</td></tr>
+  </table>
+<table class="body" style="width: 100%; margin-top: 10px;"><tr>
+<th>Project Name</th>
+<!--th>Contract #</th-->
+<th>Bid Date</th>
+<th>HSC Estimator</th>
+</tr>
+<tr>
+<td>${record.memo}</td>
+<!--td>${record.tranid}</td-->
+<td>${record.custbody2}</td>
+<td>${record.custbody1}</td>
+</tr></table>
+<#if record.item?has_content>
+<#assign linecount = 1 />
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --> <#list record.item?sort_by("custcol_nspos_lineno") as item> <#if item_index==0>
+<thead>
+<tr>
+<th colspan="3" align="center">Line No.</th>
+<th colspan="12">${item.description@label}</th>
+<th colspan="3" align="center">UOM</th>
+<th colspan="3" align="center">${item.quantity@label}</th>
+<th colspan="4" align="right">${item.rate@label}</th>
+<th colspan="4" align="right">${item.amount@label}</th>
+</tr>
+</thead>
+</#if><tr>
+<!--td colspan="3" align="center">${linecount}</td-->
+<td colspan="3" align="center">${item.custcol_nspos_lineno}</td>
+<td colspan="12"><span class="itemname">${item.item}</span><br />${item.description}</td>
+<td colspan="3" align="center">${item.units}</td>
+<td colspan="3" align="center">${item.quantity}</td>
+<td colspan="4" align="right">${item.rate}</td>
+<td colspan="4" align="right">${item.amount}</td>
+</tr>
+<#assign linecount = linecount + 1 />
+</#list> <!-- end items --></table>
+<hr /></#if>
+<table class="total" style="width: 100%; margin-top: 10px;"><tr>
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.subtotal@label}</strong></td>
+<td align="right">${record.subtotal}</td>
+</tr>
+<tr>
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.taxtotal@label} (${record.taxrate}%)</strong></td>
+<td align="right">${record.taxtotal}</td>
+</tr>
+<tr class="totalrow">
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.total@label}</strong></td>
+<td align="right">${record.total}</td>
+</tr></table>
+
+  <div style="page-break-before: always;"></div>
+  <table border="1" cellpadding="5" cellspacing="0" width="100%" style = "font-size: 7pt;">
+  <thead>
+    <tr>
+      <th colspan="2" style="align: center; font-size: 9pt; font-weight: bold; border-bottom: 1px solid #000;">CONTRACT DETAILS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="2">${record.custbody11}</td>
+    </tr>
+    <tr>
+      <td colspan="2">${record.custbody12}</td>
+    </tr>
+    <tr>
+      <td colspan="2">1. Traffic control by others. Work is to be done in standard weekday shift.</td>
+    </tr>
+    <tr>
+      <td colspan="2">2. All items must be taken together.</td>
+    </tr>
+    <tr>
+      <td colspan="2">3. Quoted price is valid for 15 days. HSC is to be notified within 5 business days if this quote is used.</td>
+    </tr>
+    <tr>
+      <td colspan="2">4. If requested, subcontractor will furnish surety bonds on HSC's surety or AGC forms only. Premium of 2% of subcontracted amount on project less than two years. Additional fees may apply if longer than two years.</td>
+    </tr>
+    <tr>
+      <!--td colspan="2">5. PRICE FOR CONSTRUCTION AREA SIGNS INCLUDES; CS-1,MI-1,MI-2, +5 PROJECT FUNDING SIGNS</td-->
+      <td colspan="2">5. PRICE FOR CONSTRUCTION AREA SIGNS INCLUDES; ${record.custbody_tnc_line_5}</td>
+    </tr>
+    <tr>
+      <td colspan="2">6. PRICE FOR CONSTRUCTION AREA SIGNS EXCLUDES; PORTABLE RADAR FEEDBACK SIGNS AND CMS</td>
+    </tr>
+    <tr>
+      <td colspan="2">7. Excludes all additional licenses and permits. If Special Insurance verbiage or waiver is needed, there may be additional charges.</td>
+    </tr>
+    <tr>
+      <td colspan="2">8. Highway Specialty excludes all LCS Inputs, Status or Closures and Traffic related items.</td>
+    </tr>
+    <tr>
+      <td colspan="2">9. Items do not include grade, removal of concrete, backfill, compaction or grading for all items.</td>
+    </tr>
+    <tr>
+      <td colspan="2">10. Excludes all clearing, trimming and grubbing for all items.</td>
+    </tr>
+    <tr>
+      <td colspan="2">11. Does not include temporary protection, removal or resetting of Temporary Barrier or Crash Cushions, Barricades, Cones, Safety Railing, Dust Control, Embankment Widening, QC Testing and or Sampling, WPCP, LCP and/or training or employees.</td>
+    </tr>
+    <tr>
+      <td colspan="2">12. Except for Treated Wood Waste, all items exclude handling, managing, storage, or disposal of, contaminated and/or hazardous materials, water and/or waste, and/or Aerially deposited lead, and/or Abestos, and/or exisiting paint systems.</td>
+    </tr>
+    <tr>
+      <td colspan="2">13. 15 feet is needed for access for HSC to perform work with a drivable surface to the work area.</td>
+    </tr>
+    <tr>
+      <td colspan="2">14. All items exclude WPCP, WPCP BMPs, WPC Training and Maintenance.</td>
+    </tr>
+    <tr>
+      <td colspan="2">15. Highway Specialty Excludes any and all Coring, Cutting, Saw Cutting or Patching or AC or Concrete.</td>
+    </tr>
+    <tr>
+      <td colspan="2">16. Concrete Washout to be provided by others with 500 feet of concrete pours.</td>
+    </tr>
+    <tr>
+      <td colspan="2">17. Excludes Staining, Coloring or Powder Coating of all items.</td>
+    </tr>
+    <tr>
+      <td colspan="2">18. Excludes Temporary Shut Down of Power Shutdowns if required.</td>
+    </tr>
+    <tr>
+      <td colspan="2">19. Excludes all Survery Controls, Staking, Layout, Locating of Existing Facilities, as Builts and/or Record of Drawings.</td>
+    </tr>
+    <tr>
+      <td colspan="2">20. Excludes all electrical work items; installation, removal, pipes, repair of contractor electrical, maintaining electrical system.</td>
+    </tr>
+    <tr>
+      <td colspan="2">21. HSC will USA pre-existing ultilites. Utilities/Contractor Underground Work installed under this contract are to be located and marked by others prior to HSC move-in.</td>
+    </tr>
+    <tr>
+      <td colspan="2">22. Repair of work installed under this contract and damaged by public or contractor to be reimbursed by others.</td>
+    </tr>
+    <tr>
+      <td colspan="2">23. Contractor to supply a secure yard with proper BMPs.</td>
+    </tr>
+    <tr>
+      <td colspan="2">24. Contractor to supply bathroom and proper wash down facilities.</td>
+    </tr>
+    <tr>
+      <td colspan="2">25. Unless HSC is performing barrier work, excludes holes in barrier for all connections and/or drilling of holes.</td>
+    </tr>
+    <tr>
+      <td colspan="2">26. A contract and 20 working days written notice is required for scheduling.</td>
+    </tr>
+    <tr>
+      <td colspan="2">27. All USA Locations Mark Out to be done by others and must be completed prior to Highway Specialty notifying USA service alert and starting work.</td>
+    </tr>
+    <tr>
+      <td colspan="2">28. Price for construction area signs includes install, removal, initial covering if required and dating of ramp signs. No maintenance.</td>
+    </tr>
+    <tr>
+      <td colspan="2">29. CAS price excludes changable message signs and flashing beacons if not noted above.</td>
+    </tr>
+    <tr>
+      <td colspan="2">30. All Construction Area Signs, Crash Cushions, Barricades, Channelizers, Delineators and Temp Barriers are considered rental and shall remain the sole property of HSC.</td>
+    </tr>
+    <tr>
+      <td colspan="2">31. Highway Specialty will charge prime contractor full replacment cost for any signs missing or damaged during or at the end of the contract.</td>
+    </tr>
+    <tr>
+      <td colspan="2">32. Highway Specialty will charge prime contractor full replacment cost/repairs cost of PCMS, Radar, AFADs that are missing or damaged at the end of contract.</td>
+    </tr>
+    <tr>
+      <td colspan="2">33. Should this Quote be accepted by the Prime Contractor, these details in their entirety must be included in the subcontract agreement as quoted. Contractor's signature, or by first allowing HSC to begin work on the project, shall serve as evidence of acceptance of the above conditions.</td>
+    </tr>
+
+  </tbody>
+
+
+  </table>
+  <table style = "width: 100%;"><tr><td align = "center"><b>THANK YOU FOR THE OPPORTUNITY TO PROVIDE PRICING FOR YOUR SIGN AND TRAFFIC CONTROL NEEDS.</b></td></tr>
+<tr><td align = "center"><b>PLEASE FEEL FREE TO CONTACT ME AT (530)949-5685 OR VIA EMAIL AT MATTM@HIGHWAYSPECIALTY.COM</b></td></tr></table>
+
+
+</body>
+</pdf>
