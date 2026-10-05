@@ -1,0 +1,292 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <style>
+		* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+    </style>
+</head>
+<body padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+  <tr>
+    <td colspan="3" style="align: center; font-weight: bold; font-size: 14pt;">
+      CALIFORNIA PRELIMINARY NOTICE -- PUBLIC WORKS
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" style="align: center; font-size: 10pt; padding-bottom: 25px;">
+      (THIS NOTICE IS GIVEN PURSUANT TO CALIFORNIA CIVIL CODE SECTIONS 8034(b), 8102, 8106-8118, 9300 et seq.)
+    </td>
+  </tr>
+    </table>
+<table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+  <tr>
+    <td style="width: 33.3%; align: center; font-weight: bold; font-size: 10pt;">
+      TO:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      PUBLIC ENTITY<br />
+      <span style="font-weight: normal; font-weight: bold; align: center;">(CA Civ. Code sections 8036, 9302)</span>
+    </td>
+    <td></td>
+    <td style="width: 33.3%; align: center; font-weight: bold; font-size: 10pt;">
+      DIRECT CONTRACTOR<br />
+      <span style="font-weight: normal; font-weight: bold; align: center;">(CA Civ. Code section 8018)</span>
+    </td>
+    <td></td>
+    <td style="width: 33.3%; align: center; font-weight: bold; font-size: 10pt;">
+      1st TIER SUBCONTRACTOR<br />
+      <span style="font-weight: normal; font-weight: bold; align: center;">(IF APPLICABLE)<br />(CA Civ. Code section 8046)</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: 1px solid #000; height: 80px; align: center; vertical-align: middle">${record.custbody7}</td>
+    <td style="border: 0px solid #000;"></td>
+    <td style="border: 1px solid #000;  align: center; vertical-align: middle">${record.custbody9}</td>
+    <td style="border: 0px solid #000;"></td>
+    <td style="border: 1px solid #000;  align: center; vertical-align: middle">${record.custbody_prelien_subcontractor_address}</td>
+  </tr>
+    </table>
+<table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+  <tr>
+    <td colspan="3" style="font-weight: bold; padding-top: 15px;">
+      YOU ARE HEREBY NOTIFIED THAT (Claimant):
+    </td>
+  </tr>
+
+  <tr>
+    <td style="border: 1px solid #000; font-weight: bold; vertical-align: middle; padding: 4px;">
+      Individual<br />or<br />Firm
+    </td>
+    <td colspan="2" style="border: 1px solid #000; vertical-align: top; padding: 4px;"><b>
+      Highway Specialty Co Inc<br/>
+      P O Box 141<br/>
+      Palo Cedro CA 96073
+    </b></td>
+  </tr>
+  <tr margin-top= "10px" margin-bottom= "5px">
+    <td colspan = "3"  font-size = "8pt">Relationship to the parties of the one giving this notice (direct contractor, subcontractor, supplier, describe if otherwise): <input type="text" name="sub" value='' style="width: 90px; display: inline;" /></td>
+  </tr>
+</table>
+  <table>
+    <tr>
+      <td>
+        <b>HAS FURNISHED OR WILL FURNISH WORK, LABOR, SERVICES, EQUIPMENT OR MATERIAL OF THE FOLLOWING GENERAL DESCRIPTION:</b>
+      </td>
+    </tr>
+    <tr><td padding-left = "35px" margin-bottom= "10px">
+      Furnish and Install Guardrail; Construction Area Signs; Roadside Signs Provide<br/>
+      Traffic Control and/or Rental Equipment; Concrete; Product Sales
+    </td></tr>
+
+    <tr>
+      <td>
+        <b>FOR THE BUILDING, STRUCTURE OR OTHER WORK OF IMPROVEMENT LOCATED AT THE FOLLOWING ADDRESS:</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" name="building" value="" style="display: inline; width: 650px;" /><br/>
+        <input type="text" name="building1" value="" style="display: inline; width: 650px;" /><br/>
+        <input type="text" name="building2" value="" style="display: inline; width: 650px;" />
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <b>THE PERSON OR FIRM TO WHOM SUCH LABOR, SERVICES, EQUIPMENT OR MATERIAL IS PROVIDED:</b>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" name="person" value="" style="display: inline; width: 650px;" /><br/>
+        <input type="text" name="person1" value="" style="display: inline; width: 650px;" /><br/>
+        <input type="text" name="person2" value="" style="display: inline; width: 650px;" />
+      </td>
+    </tr>
+  </table>
+
+  <table width = "100%">
+    <tr>
+      <td margin-bottom= "10px">
+        <b>AN ESTIMATE OF THE TOTAL PRICE OF LABOR, SERVICES, EQUIPMENT AND/OR MATERIALS TO BE FURNISHED IS:</b>
+      </td>
+    </tr>
+    <tr>
+      <td style="width: 10px;"><b>Amount:</b><input type="text" name="amount" value="" style="display: inline; width: 600px;" /></td>
+    </tr>
+    <tr>
+    <td margin-bottom= "5px">
+        <b>THE LABOR, SERVICES, EQUIPMENT OR MATERIAL WAS PROVIDED OR WILL BE PROVIDED BEGINNING ON</b> <input type="text" name="date1" value='' style="width: 75px; display: inline;" /><b>.</b>
+      </td>
+    </tr>
+  </table>
+
+<table style="width: 100%; font-size: 8pt; border-collapse: collapse;" margin-top= "5px">
+  <!-- Title -->
+  <tr>
+    <td align = "center" colspan="4" style="font-weight: bold; font-size: 11pt;">
+      PROOF OF SERVICE AFFIDAVIT
+    </td>
+  </tr>
+
+  <!-- Declaration line -->
+  <tr>
+    <td colspan="4" style="padding-top: 6px;">
+      I, <input type="text" name="employer" value='' style="width: 200px; display: inline;" /> , declare that I served copies of the above 
+      <b>PRELIMINARY NOTICE - PUBLIC WORKS</b>,
+    </td>
+  </tr>
+
+  <!-- Check box instruction -->
+  <tr>
+    <td colspan="4" style="padding-top: 4px;">
+      (check appropriate box):
+    </td>
+  </tr>
+
+  <!-- Option A -->
+  <tr>
+    <td colspan = "4" style="width: 3%;">a. <input type="checkbox" name="a" value='false' style=" display: inline;" /> By personal delivery to <input type="text" name="a1" value='Name/Title' style="width: 150px; display: inline;" /> at <input type="text" name="a2" value='Address' style="width: 150px;display: inline;" /> on <input type="text" name="a3" value='Date' style="width: 75px; display: inline;" /> <input type="text" name="a4" value='Time' style="width: 70px; display: inline;" /></td>
+  </tr>
+  <tr>
+    <td colspan = "4" style="width: 3%;">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;By personal delivery to <input type="text" name="b1" value='Name/Title' style="width: 150px; display: inline;" /> at <input type="text" name="b2" value='Address' style="width: 150px; display: inline;" /> on <input type="text" name="b3" value='Date' style="width: 75px;  display: inline;" /> <input type="text" name="b4" value='Time' style="width: 70px; display: inline;" /></td>
+  </tr>
+  <tr>
+    <td colspan = "4" style="width: 3%;">b. <input type="checkbox" name="bc" value='false' style=" display: inline;" /> By Registered or Certified mail, Express Mail or Overnight Delivery by an express service carrier, addressed to each of the parties at the address shown above on <input type="text" name="bc2" value='Address' style="width: 150px; display: inline;" /> , <input type="text" name="bc3" value='Date' style="width: 75px; display: inline;" />(date).</td>
+  </tr>
+  <tr>
+    <td colspan = "4" style="width: 3%;">c. <input type="checkbox" name="cc" value='false' style=" display: inline;" /> By leaving the notice and mailing a copy in the manner provided in section 415.20 of the California Code of Civil Procedure for service of Summons and Complaint in a Civil Action.</td>
+  </tr>
+  
+  <tr>
+    <td colspan="4" style="padding-top: 10px;">
+      I declare under penalty of perjury that the foregoing is true and correct.
+    </td>
+  </tr>
+
+  <!-- Signature location -->
+  <tr>
+    <td colspan="4" style="padding-top: 4px;">
+      Signed at 
+      <input type="text" name="sign" value='' style="width: 150px; display: inline;" />, California, on 
+      <input type="text" name="date" value='' style="width: 70px; display: inline;" /> , <input type="text" name="time" value='' style="width: 70px; display: inline;" /> (date).
+    </td>
+  </tr>
+
+  <!-- Signature line -->
+  <tr>
+    <td colspan="4" style="padding-top: 8px;">
+      Signature of person making service: <input type="text" name="personlast" value='' style="width: 300px; display: inline;" />
+    </td>
+  </tr>
+</table>
+
+
+
+</body>
+</pdf>
