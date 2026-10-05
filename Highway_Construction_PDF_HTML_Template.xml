@@ -173,7 +173,7 @@
 </#if><tr>
 <!--td colspan="3" align="center">${linecount}</td-->
 <td colspan="3" align="center">${item.custcol_nspos_lineno}</td>
-<td colspan="12"><span class="itemname">${item.item}</span><br />${item.description}</td>
+<td colspan="12"><span class="itemname">${item.item}</span><#if item.item?lower_case != item.description?lower_case><br />${item.description}</#if></td>
 <td colspan="3" align="center">${item.units}</td>
 <td colspan="3" align="center">${item.quantity}</td>
 <td colspan="4" align="right">${item.rate}</td>
