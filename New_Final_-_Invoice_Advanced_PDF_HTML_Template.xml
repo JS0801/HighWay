@@ -1,0 +1,283 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+<table class="header" style="width: 100%;"><tr>
+<td style="width: 20%;" align="left"><#if subsidiary.logo?length != 0 > <@filecabinet nstype="image" style="margin: 7px; float: left;" src="${subsidiary.logo@url}" /> <#elseif companyInformation.logoUrl?length != 0 > <@filecabinet nstype="image" style="margin: 0px; float: left; width: 120px; height: 62.86px;" src="${companyInformation.logoUrl}" /> </#if></td>
+<td style="width: 40%;"><strong><span style="font-size: 15px;">Highway Specialty Co Inc</span></strong><br /><br />P O Box 141<br />Palo Cedro CA 96073<br />(530) 949-5631</td>
+<td style="width: 40%;" align="right"><span class="title"><strong>${record@title}</strong></span> <br /><br /><strong>Invoice No.#:</strong> ${record.tranid} <br /><strong>Date:</strong> ${record.trandate} <br /><strong>Job No.:</strong> ${record.custbody4} <br /></td>
+</tr>
+<tr>
+<td style="width: 19.8773%;" align="center">License: 1003147</td>
+</tr></table>
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: Arial, NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #657796;
+            color: #ffffff;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 4px 6px;
+            font-size: 10pt;
+        }
+     	table.header td.label {
+            padding: 4px 6px;
+            font-size: 10pt;
+          	font-weight: bold;
+        }
+      	table.header td.value {
+            padding: 4px 6px;
+            font-size: 9pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            font-size: 9pt;
+          	padding-bottom: 10px;
+            padding-top: 10px;
+        }
+      	table.itemtable td {
+            font-size: 9pt;
+          	padding-bottom: 10px;
+            padding-top: 10px;
+        }
+      	table.addresstable {
+            border: 0px;
+          	padding-top: 0px;
+            padding-bottom: 0px;
+          	margin-top: 0px;
+          	margin-bottom: 0px;
+        }
+      	table.body {
+        	padding-top: 0px;
+            padding-bottom: 0px;
+          	margin-top: 0px;
+          	margin-bottom: 0px;
+      	}
+      	table.body tr {
+            border: 0px;
+          	border-collapse: collapse;
+        }
+        table.body th {
+            font-size: 9pt;
+          	padding: 8px;
+          	align: center;
+        }
+      	table.body td {
+          	font-size: 9pt;  
+          	padding: 5px;
+          	align: center;
+          	vertical-align: middle;
+          	border: .5px;
+            border-color: #657796;
+          	border-collapse: collapse;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #ffffff;
+            line-height: 150%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+          	margin-top: 0px;
+          	margin-bottom: 0px;
+          	vertical-align: bottom;
+        }
+        td.address {
+            font-size: 9pt;
+          	padding-top: 0px;
+          	padding-bottom: 0px;
+          	margin-top: 0px;
+          	margin-bottom: 0px;
+          	line-height: 150%;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      	table.remarks {
+            font-size: 9pt;
+        }
+        span.title {
+            font-size: 24pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="16%" footer="nlfooter" footer-height="20pt" padding="0.5in" size="Letter">
+    <table class="addresstable" style="width: 100%;"><tr>
+	<td class="addressheader" colspan="5"><b>Billed To:</b></td>
+	<td class="addressheader" colspan="5"><b>Project:</b></td>
+	</tr>
+	<tr style="border: 0px currentColor; border-image: none;">
+	<td class="addressheader" colspan="5">
+	<hr style="padding-top: 0px; padding-bottom: 0px; margin-top: 0px; margin-bottom: 0px; vertical-align: middle;" /></td>
+	<td class="addressheader" colspan="5">
+	<hr style="padding-top: 0px; padding-bottom: 0px; margin-top: 0px; margin-bottom: 0px; vertical-align: top;" /></td>
+	</tr>
+	<tr>
+	<td class="address" colspan="5">${record.billaddress}</td>
+	<td class="address" colspan="5">${record.cseg_bc_project}<br/>${record.cseg_bc_project.custrecord3}</td>
+	</tr></table>
+&nbsp;
+
+<table class="body" style="width: 100%;"><tr>
+	<th>${record.otherrefnum@label?upper_case}</th>
+	<th>${record.duedate@label?upper_case}</th>
+	<th>${record.terms@label?upper_case}</th>
+	</tr>
+	<tr>
+	<td>${record.otherrefnum}</td>
+	<td>${record.duedate}</td>
+	<td>${record.terms}</td>
+	</tr></table>
+<br /><#if record.item?has_content>
+<!-- check if record has tax amount/rate first -->
+<#assign tax_amt = false>
+<#assign tax_rate = false>
+<!-- "_st" fields added for SuiteTax compatibility / different field ids are checked-->
+<#assign tax_amt_st = false>
+<#assign tax_rate_st = false>
+
+<#list record.item as item>
+	<#if (item.tax1amt?length != 0) ><#assign tax_amt = true></#if>
+	<#if (item.taxamount?length != 0) ><#assign tax_amt_st = true></#if>
+	<#if (item.taxrate1?length != 0) ><#assign tax_rate = true></#if>
+	<#if (item.taxrate?length != 0) ><#assign tax_rate_st = true></#if>
+</#list>
+<!-- end check -->
+      <#assign rowIdx = 0>
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th width="10%">${item.custcol_bc_proj_line_num@label?upper_case}</th>
+	<th width="30%">${item.description@label?upper_case}</th>
+	<th align="center" width="10%" line-height="150%">QTY</th>
+	<th align="center" width="25%">${item.rate@label?upper_case}</th>
+	<th align="center" width="25%">${item.amount@label?upper_case}</th>
+	</tr>
+</thead>
+</#if>
+  <#if item.item != 'Description'>
+  <tr style="background-color: <#if (rowIdx % 2) == 0>#ffffff<#else>#e1e6ee</#if>">
+  
+    <td>${item.custcol_bc_proj_line_num}</td>
+    <td>${item.description}</td>
+	<td align="center" line-height="150%">${item.quantity}</td>
+	<#if item.rate?length != 0 >
+		<#assign localcurrency = item.rate?string[0] />
+	<#elseif item.amount?length != 0 >
+		<#assign localcurrency = item.amount?string[0] />
+	<#else>
+		<#assign localcurrency = "$" />
+	</#if>
+	<#assign rateval = item.rate?string(",##0.00") />
+	<#assign amtval = item.amount?string(",##0.00") />
+	<td align="right">${localcurrency}${rateval}</td>
+	<td align="right">${localcurrency}${amtval}</td>
+	</tr><#assign rowIdx = rowIdx + 1>
+      </#if>
+	</#list><!-- end items --></table>
+</#if>
+
+<hr style="border: 2px solid; color: #657796;" />
+<table class="total" style="width: 100%;"><tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.subtotal@label?upper_case}</b></td>
+	<td align="right">${record.subtotal}</td>
+	</tr>
+  <tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.taxtotal@label?upper_case}</b></td>
+	<td align="right">${record.taxtotal}</td>
+	</tr>
+  <#if record.shippingcost?length != 0 >
+  <tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.shippingcost@label?upper_case}</b></td>
+	<td align="right">${record.shippingcost}</td>
+	</tr>
+  </#if>
+  <tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.total@label?upper_case}</b></td>
+	<td align="right">${record.total}</td>
+	</tr></table>
+</body>
+</pdf>
