@@ -1,0 +1,306 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlfooter">
+            
+<table class="footer" style="width: 100%;"><tr>
+<td></td>
+<td align="right"><pagenumber/> of <totalpages/></td>
+</tr></table>
+
+        </macro>
+    </macrolist>
+    <style>
+		* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+        table {
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+    </style>
+</head>
+<body header="nlheader" header-height="13%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+
+  <table class="header" style="width: 100%; height: 100.787px;"><tr>
+<td style="width: 15%;" rowspan="9" align="left"><#if subsidiary.logo?length != 0 > <@filecabinet nstype="image" style="margin: 0px; float: left; width: 175px; height: 91px; padding-right: 10px;" src="${subsidiary.logo@url}" /> <#elseif companyInformation.logoUrl?length != 0 > <@filecabinet nstype="image" style="margin: 0px; float: left; width: 175px; height: 91px; padding-right: 10px;" src="${companyInformation.logoUrl}" /> </#if></td>
+<td style="width: 85%; font-size: 15pt; padding-bottom: 15px;" align="right"><b>Highway Specialty Company, Inc.</b></td>
+</tr>
+  <tr><td style="width: 85%; padding-bottom: 10px;" align="right"><b>TRAFFIC SAFETY SUPPLY, TRAFFIC CONTROL, SIGNS AND GUARDRAIL</b></td></tr>
+  <tr><td style="width: 85%; font-size: 8pt;" align="right">MAILING: PO BOX 141 PALO CEDRO, CA 96073</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">SACRAMENTO OFFICE: 4212 ROSEVILLE ROAD NORTH HIGHLANDS, CA 95660</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">REDDING OFFICE: 6591 EASTSIDE ROAD REDDING, CA 96001</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">COAST OFFICE: 3749 WEST END COURT, ARCATA, CA 95521</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">LICENSE # 1003147 A, C13, C31, C32, C61-D42, A UNION CONTRACTOR</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">PHONE 530-949-5685&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAX 855-846-5806</td></tr>
+  <tr line-height = "1px;"><td style="width: 85%; font-size: 8pt;" align="right">CALIFORNIA CERTIFIED SMALL BUSINESS # 1559500&nbsp;&nbsp;&nbsp;&nbsp;DIR REGISTRATION # 1000022123</td></tr>
+</table>
+<hr/>
+<table class="body" style="width: 100%; margin-top: 10px;"><tr>
+<th>${record.duedate@label}</th>
+<th>Project Name</th>
+<th>Contract #</th>
+<th>Bid Date</th>
+<th>Estimator</th>
+</tr>
+<tr>
+<td>${record.duedate}</td>
+<td>${record.cseg_bc_project}</td>
+<td>${record.tranid}</td>
+<td>${record.custbody2}</td>
+<td>${record.custbody1}</td>
+</tr></table>
+<#if record.item?has_content>
+<#assign linecount = 1 />
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --> <#list record.item as item> <#if item_index==0>
+<thead>
+<tr>
+<th colspan="3" align="center">Line No.</th>
+<th colspan="12">${item.description@label}</th>
+<th colspan="3" align="center">UOM</th>
+<th colspan="3" align="center">${item.quantity@label}</th>
+<th colspan="4" align="right">${item.rate@label}</th>
+<th colspan="4" align="right">${item.amount@label}</th>
+</tr>
+</thead>
+</#if><tr>
+<td colspan="3" align="center">${linecount}</td>
+<td colspan="12"><span class="itemname">${item.item}</span><br />${item.description}</td>
+<td colspan="3" align="center">${item.units}</td>
+<td colspan="3" align="center">${item.quantity}</td>
+<td colspan="4" align="right">${item.rate}</td>
+<td colspan="4" align="right">${item.amount}</td>
+</tr>
+<#assign linecount = linecount + 1 />
+</#list> <!-- end items --></table>
+<hr /></#if>
+<table class="total" style="width: 100%; margin-top: 10px;"><tr>
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.subtotal@label}</strong></td>
+<td align="right">${record.subtotal}</td>
+</tr>
+<tr>
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.taxtotal@label} (${record.taxrate}%)</strong></td>
+<td align="right">${record.taxtotal}</td>
+</tr>
+<tr class="totalrow">
+<td colspan="4">&nbsp;</td>
+<td align="right"><strong>${record.total@label}</strong></td>
+<td align="right">${record.total}</td>
+</tr></table>
+
+  <div style="page-break-before: always;"></div>
+  <table border="1" cellpadding="5" cellspacing="0" width="100%" style = "font-size: 7pt;">
+  <thead>
+    <tr>
+      <th colspan="2" style="align: center; font-size: 9pt; font-weight: bold; border-bottom: 1px solid #000;">Terms and Conditions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="2"><b>Acknowledgement &amp; Agreement:</b> By appointing or listing Highway Specialty Company Inc. as a subcontractor on this project, the Prime Contractor acknowledges and agrees to all applicable terms and conditions as stated within the quoted prices and in the descriptions provided below.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway specialty Company Inc. is not responible nor will they input, call or status LCS closures.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Unless otherwise agreed to in writing, prior to the time of bid acceptance, no items shall be amended or excluded from this subcontract.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc. requires this executed subcontract agreement prior to the start of any work and requires at least 10 calendar days advance notice for mobilization of PCMS, arrow boards, light towers, attenuator trucks, flaggers, pilot cars, etc.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc. is Union, signatory to the Laborers Traffic Control/Highway Improvement Agreement of Northern California.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc. is bound to the terms and conditions set forth by the 'Northern California District Council of Laborers' of the 'Laborers International Union of North America'.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc, twice a year, may make adjustment to rates due to fuel increases and labor rate changes that affect the amount of Union Traffic Control Agreement.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Quoted rates do not include .5 (half) hour lunch required if not relieved by the Prime Contractor.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Where applicable, add $35.00 per day per person for subsistence.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Prime Contractor is responsible for furnishing flag persons with breaks. Prime Contractor agrees to provide up to 10 minutes per Highway Specialty Company Inc. employee for relief break periods, as needed, due to weather and heat conditions to meet CAL/OSHA heat illness prevention requirements. If this condition cannot be met by the Prime Contractor, Highway Specialty Company Inc. will hire an additional man at the Prime Contractor’s expense.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Any shift where traffic control services are performed for less than 8 hours will be billed for the entire 8 hours and will not be prorated.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Cancellations made in less than 24 hours of the requested show up time will be charged an 8-hour shift.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Our pilot car/flaggers and traffic control personnel will be equipped with VHF and UHF 2-way radios and with CB radios for communication with your truckers and other CB-equipped equipment.</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>The Prime Contractor Responsibilities : </b>
+        <br/> a. Prime contractor shall be responsible for any damage or loss to/of any equipment or construction area signs/post/barricades (PCMSs, Arrow Boards, Lighting Towers, Attenuator Trucks, Rumble Strips, etc.) due to traffic conflicts, vandalism, theft, acts of nature and/or mishandling by Prime Contractor’s staff, this includes batteries.
+        <br/> b. Prime Contractor is responsible for all lost, stolen, or damaged equipment on job site (includes all powered, non-powered equipment and construction area signs).
+        <br/> c. Prime contractor will also be responsible for maintaining construction area signs. Additional signs required due to damage, theft, or plan inadequacies will be billed as extra work.
+        <br/> d. Any extra mobilization or installation for construction area sign will also billed to the prime contractor as extra work.
+        <br/> e. A daily record of items used and will be provided by Highway Specialty Company Inc. for the Prime Contractor to sign off on.
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">All customers renting equipment must provide a certificate of insurance naming Highway Specialty Company, Inc. as additionally insured.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Fuel expense for an attenuator truck and light tower will be billed to the Prime Contractor at the rate of $8.00 per gallon.</td>
+    </tr>
+    <tr>
+      <td colspan="2">For safety of the public, contractors and employees of Highway Specialty Company Inc., traffic control duties shall not be performed during hours of darkness without light towers.</td>
+    </tr>
+    <tr>
+      <td colspan="2">It is the responsibility and expense of the Prime Contractor to furnish light towers.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc. maintains insurance coverages as required by USDOT-Caltrans (Commercial General Liability, Commercial Auto, and Worker’s Compensation).</td>
+    </tr>
+    <tr>
+      <td colspan="2">All additional insurance requirements and verbage will have additional charge. Traffic Control will not be bonded.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Highway Specialty Company Inc. will bill weekly. Invoice is due and payable 30 days from the date of the invoice.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Customer/Prime Contractor agrees to pay a finance charge of 1.5% per month on all past due balances.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Customer/Prime Contractor further agrees to pay reasonable attorney’s fees and cost if collection is required.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Prime Contractor is to provide monthly progress payments for all completed work.</td>
+    </tr>
+    <tr>
+      <td colspan="2">Monthly payments must be received in full by Highway Specialty Company Inc. to avoid finance charges and/or collection fees.</td>
+    </tr>
+    <tr>
+      <td colspan="2">There will be no retention held on Traffic Control.</td>
+    </tr>
+    <tr>
+      <td colspan="2">If there are any issues or concerns regarding Highway Specialty Company Inc. and its employees, products, or work performed, the Prime Contractor shall promptly notify and give Highway Specialty Company Inc. first opportunity to correct such problems.</td>
+    </tr>
+    <tr>
+      <td colspan="2" align = 'center'>We look forward to working with you and are committed to safety on the job and good faith in all aspects. Should you have any questions regarding these terms, please contact us directly.</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>BASIC SETUP &amp; INSTALLATION :</b>
+        <br/> a. SPECIAL PROVISIONS DOES NOT CALL FOR SPECIFICATION OF QUANITIES &amp; LOCATIONS IN STANDARD PLANS MI-1 TO MI-9
+        <br/> b. TERMINOLOGY OF AN "AWIS" IN ITS COMPLEXITY IS TBD BY FIELD ENGINEER ON WHAT IS NEEDED ON THE JOBSITE
+      </td>
+    </tr>
+
+  </tbody>
+
+
+  </table>
+
+
+</body>
+</pdf>
