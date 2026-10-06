@@ -13,7 +13,7 @@
   <keephistory>ALWAYS</keephistory>
   <name>BC | Approval Matrix Flow</name>
   <recordtypes>INVOICE|PURCHASEORDER|VENDORBILL</recordtypes>
-  <releasestatus>SUSPENDED</releasestatus>
+  <releasestatus>RELEASED</releasestatus>
   <runasadmin>T</runasadmin>
   <initcondition>
     <formula></formula>
@@ -127,7 +127,7 @@
           <label>Submit For Approval</label>
           <saverecordfirst>T</saverecordfirst>
           <initcondition>
-            <formula><![CDATA["Created By" IN ("Current User")]]></formula>
+            <formula><![CDATA[( "Created By" IN ("Current User") OR "User Role" IN ("Role1") )]]></formula>
             <type>VISUAL_BUILDER</type>
             <parameters>
               <parameter>
@@ -138,6 +138,15 @@
                 <name>Current User</name>
                 <selectrecordtype>-4</selectrecordtype>
                 <value>@CURRENTUSER@</value>
+              </parameter>
+              <parameter>
+                <name>User Role</name>
+                <value>STDUSERROLE</value>
+              </parameter>
+              <parameter>
+                <name>Role1</name>
+                <selectrecordtype>-118</selectrecordtype>
+                <value>ADMINISTRATOR</value>
               </parameter>
             </parameters>
           </initcondition>
