@@ -305,7 +305,7 @@ define(['N/search', 'N/currentRecord', 'N/runtime'], function (search, currentRe
     var mode = runtime.executionContext;
 
     if (mode !== runtime.ContextType.USER_INTERFACE) return true;
-    if (rec.id) return true;
+  //  if (rec.id) return true;
 
     var lineCount = rec.getLineCount({ sublistId: SUBLIST_ID });
     log.debug('lineCount', lineCount)
