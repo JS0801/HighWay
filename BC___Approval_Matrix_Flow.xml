@@ -712,12 +712,12 @@
           <eventtypes></eventtypes>
           <isinactive>F</isinactive>
           <initcondition>
-            <formula><![CDATA["Created By" NOT IN ("Current User")]]></formula>
+            <formula><![CDATA["Created By (2)" NOT IN ("Current User")]]></formula>
             <type>VISUAL_BUILDER</type>
             <parameters>
               <parameter>
-                <name>Created By</name>
-                <value>[scriptid=custbody_bc_created_by]</value>
+                <name>Created By (2)</name>
+                <value>[scriptid=custbody_bc_ft_created_by]</value>
               </parameter>
               <parameter>
                 <name>Current User</name>
