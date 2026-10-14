@@ -127,7 +127,7 @@
           <label>Submit For Approval</label>
           <saverecordfirst>T</saverecordfirst>
           <initcondition>
-            <formula><![CDATA[( "Created By" IN ("Current User") OR "User Role" IN ("Role1") )]]></formula>
+            <formula><![CDATA["Created By" IN ("Employee1","Current User2")]]></formula>
             <type>VISUAL_BUILDER</type>
             <parameters>
               <parameter>
@@ -135,18 +135,14 @@
                 <value>[scriptid=custbody_bc_created_by]</value>
               </parameter>
               <parameter>
-                <name>Current User</name>
+                <name>Employee1</name>
+                <selectrecordtype>-4</selectrecordtype>
+                <value>[ACCOUNT_SPECIFIC_VALUE]</value>
+              </parameter>
+              <parameter>
+                <name>Current User2</name>
                 <selectrecordtype>-4</selectrecordtype>
                 <value>@CURRENTUSER@</value>
-              </parameter>
-              <parameter>
-                <name>User Role</name>
-                <value>STDUSERROLE</value>
-              </parameter>
-              <parameter>
-                <name>Role1</name>
-                <selectrecordtype>-118</selectrecordtype>
-                <value>ADMINISTRATOR</value>
               </parameter>
             </parameters>
           </initcondition>
