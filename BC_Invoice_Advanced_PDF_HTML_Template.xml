@@ -244,7 +244,9 @@
 </#list>
 <!-- end check -->
       <#assign rowIdx = 0>
-<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<table class="itemtable" style="width: 100%;">
+  <!-- start items -->
+  <#list record.item as item><#if item_index==0>
 <thead>
 	<tr>
 	<#if record.custbody_bc_form != 'NetScore POS Invoice'>
@@ -297,7 +299,9 @@
         </#if>
 	</tr><#assign rowIdx = rowIdx + 1>
       </#if>
-	</#list><!-- end items --></table>
+	</#list>
+      <!-- end items -->
+    </table>
 </#if>
 
 <hr style="border: 2px solid; color: #657796;" />
