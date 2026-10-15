@@ -287,8 +287,8 @@
 	<#assign rateval = item.rate?string(",##0.00") />
 	<#assign amtval = item.amount?string(",##0.00") />
       <#if item.itemtype != 'Description'>
-	<!-- <td align="right">${localcurrency}${rateval}</td>
-	<td align="right">${localcurrency}${amtval}</td> -->
+	<!-- <td align="right">${localcurrency}${rateval}</td> -->
+	<!-- <td align="right">${localcurrency}${amtval}</td> -->
 	<td align="right">${nsformat_currency(item.rate)}</td>
 	<td align="right">${nsformat_currency(item.amount)}</td>
       <#else>
