@@ -153,7 +153,7 @@
 		<th align="right">Payment Amount</th>
 		</tr>
 	</thead>
-	<#import "https://11432884-sb1.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=1628&deploy=1&compid=11432884_SB1&ns-at=AAEJ7tMQyaWOy3yHarovvfepU5jdRMbPq9SSkssv7fQQNY2_LVI&recId=" + record.id as importData />
+	<#import "https://11432884.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=1724&deploy=1&compid=11432884&ns-at=AAEJ7tMQIr9_VRwslTg07vpp1u7QrANXiu-qSdU-N4Iy6FHjQJE&recId=" + record.id as importData />
 	<#list record.apply as apply>
 		<!-- display only applied payments -->
 		<#if apply.apply>
