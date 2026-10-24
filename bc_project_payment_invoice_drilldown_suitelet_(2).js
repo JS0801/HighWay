@@ -3,15 +3,15 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
+define(['N/search', 'N/record', 'N/log', 'N/redirect', 'N/runtime'], function (search, record, log, redirect, runtime) {
   var FIELD_PAYMENT_RECEIVED = 'custcol_bc_payment_received';
   var STANDALONE_GROUP_ID = 'standalone';
   var STANDALONE_GROUP_LABEL = 'Standalone Invoices';
-  var TOLERANCE = 0.000001;
+  var TOLERANCE = 0.005;
 
   function onRequest(context) {
     try {
-      log.error({
+      log.debug({
         title: 'PDI ENTRY onRequest',
         details: {
           method: context.request.method,
@@ -27,7 +27,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
 
       var projectId = context.request.parameters.project_id || context.request.parameters.project || '';
       var pageUrl = buildPageUrl(context.request, projectId);
-      log.error({
+      log.debug({
         title: 'PDI GET project parameter',
         details: {
           projectId: projectId,
@@ -40,10 +40,14 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         projectId: projectId,
         data: data,
         actionUrl: pageUrl,
-        refreshUrl: pageUrl
+        refreshUrl: pageUrl,
+        notice: Number(context.request.parameters.custparam_saved) > 0 ? {
+          type: 'success',
+          text: 'Saved ' + Number(context.request.parameters.custparam_saved) + ' invoice(s).'
+        } : null
       });
 
-      log.error({
+      log.debug({
         title: 'PDI GET render ready',
         details: {
           projectId: projectId,
@@ -62,7 +66,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         output: html
       });
 
-      log.error({
+      log.debug({
         title: 'PDI GET response written',
         details: {
           projectId: projectId
@@ -85,11 +89,10 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     var data;
     var html;
 
-    log.error({
+    log.debug({
       title: 'PDI POST received',
       details: {
         bodyLength: body.length,
-        bodyPreview: body.substring(0, 1000),
         action: params.action || '',
         parameterCount: Object.keys(params).length
       }
@@ -111,7 +114,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       }
 
       if (payload.action !== 'savePaymentReceived') {
-        log.error({
+        log.debug({
           title: 'PDI POST unknown action',
           details: {
             action: payload.action
@@ -124,7 +127,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         return;
       }
 
-      log.error({
+      log.debug({
         title: 'PDI POST save requested',
         details: {
           source: 'json',
@@ -133,7 +136,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       });
 
       result = savePaymentReceivedEdits(payload.edits || []);
-      log.error({
+      log.audit({
         title: 'PDI POST save result',
         details: result
       });
@@ -150,7 +153,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       };
     } else {
       payload.edits = parseFormEdits(params);
-      log.error({
+      log.debug({
         title: 'PDI POST save requested',
         details: {
           source: 'form',
@@ -165,10 +168,23 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       };
     }
 
-    log.error({
+    log.audit({
       title: 'PDI POST save result',
       details: result
     });
+
+    if (result.success) {
+      var currentScript = runtime.getCurrentScript();
+      redirect.toSuitelet({
+        scriptId: currentScript.id,
+        deploymentId: currentScript.deploymentId,
+        parameters: {
+          project_id: projectId,
+          custparam_saved: String(result.savedInvoices.length)
+        }
+      });
+      return;
+    }
 
     data = projectId ? buildDataset(projectId) : emptyDataset('Missing project_id parameter.');
     html = renderPage({
@@ -227,7 +243,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
   }
 
   function buildDataset(projectId) {
-    log.error({
+    log.debug({
       title: 'PDI buildDataset start',
       details: {
         projectId: projectId
@@ -273,7 +289,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       standaloneInvoices: 0
     };
 
-    log.error({
+    log.debug({
       title: 'PDI invoice search paged',
       details: {
         projectId: projectId,
@@ -283,7 +299,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     });
 
     paged.pageRanges.forEach(function (pageRange) {
-      log.error({
+      log.debug({
         title: 'PDI invoice search fetch page',
         details: {
           projectId: projectId,
@@ -298,7 +314,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       });
     });
 
-    log.error({
+    log.debug({
       title: 'PDI invoice search consumed',
       details: debugInfo
     });
@@ -360,7 +376,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       }
     };
 
-    log.error({
+    log.debug({
       title: 'PDI buildDataset complete',
       details: {
         projectId: projectId,
@@ -442,7 +458,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     }
 
     if (debugInfo && debugInfo.rowsLogged < 5) {
-      log.error({
+      log.debug({
         title: 'PDI sample search row',
         details: {
           rowNumber: debugInfo.rowsLogged + 1,
@@ -636,9 +652,8 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     invoice.paymentCount = paymentRows.length;
     invoice.paymentLabel = invoice.paymentCount ? invoice.paymentCount + ' payment' + (invoice.paymentCount === 1 ? '' : 's') : 'No Payment';
     invoice.lineCount = lineRows.length;
-    invoice.paymentAvailable = paymentRows.reduce(function (total, payment) {
-      return total + numberValue(payment.paymentApplied);
-    }, 0);
+    invoice.paymentAvailable = Math.max(0, Math.min(numberValue(invoice.total),
+      numberValue(invoice.total) - numberValue(invoice.amountRemaining)));
     invoice.paymentApplied = lineRows.reduce(function (total, line) {
       return total + numberValue(line.paymentApplied);
     }, 0);
@@ -661,9 +676,15 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     edits.forEach(function (edit) {
       var invoiceId = text(edit.invoiceId);
       var lineUniqueKey = text(edit.lineUniqueKey);
-      var value = toNumber(edit.value);
+      var value = Number(String(edit.value).replace(/,/g, ''));
       var hasMaxAmount = edit.amount !== null && edit.amount !== undefined && edit.amount !== '';
       var maxAmount = hasMaxAmount ? Math.abs(toNumber(edit.amount)) : 0;
+
+      if (edit.value === null || edit.value === undefined || String(edit.value).trim() === '' ||
+          !isFinite(Number(String(edit.value).replace(/,/g, '')))) {
+        errors.push('Enter a valid allocation amount for the edited line.');
+        return;
+      }
 
       if (!invoiceId || !lineUniqueKey) {
         errors.push('Missing invoice or line id for an edited row.');
@@ -694,7 +715,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
     Object.keys(editsByInvoice).forEach(function (invoiceId) {
       var invoiceRec;
       try {
-        log.error({
+        log.debug({
           title: 'PDI save load invoice',
           details: {
             invoiceId: invoiceId,
@@ -726,7 +747,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             throw new Error('Payment received for invoice ' + invoiceId + ' line ' + edit.lineUniqueKey + ' cannot be greater than the line amount.');
           }
 
-          log.error({
+          log.debug({
             title: 'PDI save set line value',
             details: {
               invoiceId: invoiceId,
@@ -757,7 +778,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
           }));
         }
 
-        log.error({
+        log.debug({
           title: 'PDI save invoice total validation',
           details: {
             invoiceId: invoiceId,
@@ -767,7 +788,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         });
 
         if (invoiceLinePaymentTotal > invoicePaymentLimit + TOLERANCE) {
-          throw new Error('Total payment received on invoice ' + invoiceId + ' lines cannot be greater than the payment amount applied to the invoice.');
+          throw new Error('Total allocation on invoice ' + invoiceId + ' cannot exceed its settled amount, including payments, credits and discounts.');
         }
 
         invoiceRec.save({
@@ -775,7 +796,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
           ignoreMandatoryFields: true
         });
         savedInvoices[invoiceId] = true;
-        log.error({
+        log.audit({
           title: 'PDI save invoice complete',
           details: {
             invoiceId: invoiceId
@@ -819,17 +840,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
   }
 
   function getInvoicePaymentLimit(invoiceId) {
-    var total = 0;
-    var paymentColumn = search.createColumn({
-      name: 'formulatext',
-      summary: 'GROUP',
-      formula: "CASE WHEN {applyingtransaction} LIKE 'Payment #%' THEN {applyingtransaction} || ' ' || {applyingtransaction.internalid} ELSE NULL END"
-    });
-    var amountColumn = search.createColumn({
-      name: 'applyinglinkamount',
-      summary: 'MAX'
-    });
-
+    var limit = null;
     search.create({
       type: 'invoice',
       settings: [{ name: 'consolidationtype', value: 'ACCTTYPE' }],
@@ -838,20 +849,17 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         'AND',
         ['internalid', 'anyof', invoiceId],
         'AND',
-        ['applyingtransaction', 'noneof', '@NONE@']
+        ['mainline', 'is', 'T']
       ],
-      columns: [paymentColumn, amountColumn]
+      columns: ['total', 'amountremaining']
     }).run().each(function (result) {
-      var payment = parsePayment(text(result.getValue(paymentColumn)));
-
-      if (payment) {
-        total += Math.abs(toNumber(result.getValue(amountColumn)));
-      }
-
-      return true;
+      var total = toNumber(result.getValue({ name: 'total' }));
+      var remaining = toNumber(result.getValue({ name: 'amountremaining' }));
+      limit = Math.max(0, Math.min(total, total - remaining));
+      return false;
     });
-
-    return total;
+    if (limit === null) throw new Error('Could not read the current invoice balance. Refresh and try again.');
+    return limit;
   }
 
   function renderPage(options) {
@@ -1163,15 +1171,15 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
       '    var amount=Number(input.getAttribute("data-amount")||0);',
       '    var max=Math.abs(amount);',
       '    var value=Number(input.value||0);',
-      '    var lineInvalid=!isFinite(value)||value<0||value>max+0.000001;',
+      '    var lineInvalid=!isFinite(value)||value<0||value>max+0.005;',
       '    totals[invoiceId]=(totals[invoiceId]||0)+(isFinite(value)?value:0);',
       '    limits[invoiceId]=Number(input.getAttribute("data-invoice-limit")||0);',
       '    input.classList.toggle("invalid",lineInvalid);',
-      '    if(lineInvalid){errors.push("Payment applied cannot be greater than the line amount.");}',
+      '    if(lineInvalid){errors.push("Enter a valid nonnegative allocation no greater than the line amount.");}',
       '  });',
       '  Object.keys(totals).forEach(function(invoiceId){',
-      '    if(totals[invoiceId]>Number(limits[invoiceId]||0)+0.000001){',
-      '      errors.push("Total payment applied for invoice "+invoiceId+" cannot be greater than the payment amount applied to that invoice.");',
+      '    if(totals[invoiceId]>Number(limits[invoiceId]||0)+0.005){',
+      '      errors.push("Total invoice allocation cannot exceed its settled amount, including payments, credits and discounts.");',
       '      inputs.forEach(function(input){if((input.getAttribute("data-invoice-id")||"")===invoiceId){input.classList.add("invalid");}});',
       '    }',
       '  });',
