@@ -13,7 +13,7 @@ define(['N/log'], function (log) {
     var suiteletUrl;
 
     try {
-      log.error({
+      log.debug({
         title: 'Payment Applied View UE start',
         details: {
           eventType: context.type,
@@ -23,7 +23,7 @@ define(['N/log'], function (log) {
       });
 
       if (!projectId) {
-        log.error({
+        log.debug({
           title: 'Payment Applied View UE skipped',
           details: 'No current record id found.'
         });
@@ -45,7 +45,7 @@ define(['N/log'], function (log) {
       suiteletUrl = buildSuiteletUrl(projectId);
       field.defaultValue = buildLazyIframeHtml(suiteletUrl);
 
-      log.error({
+      log.debug({
         title: 'Payment Applied View UE complete',
         details: {
           projectId: projectId,
