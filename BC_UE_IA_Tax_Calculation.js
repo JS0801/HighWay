@@ -130,38 +130,17 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                     }
 
                     var baseAmt = qty * unitCost;
-                    
-
-                    // NEW — per-authority breakdown, built off the tax group lookup only (not the manual override)
-                    var authorityBreakdown = [];
-                    if (tgOnLine && cache.taxGroupToAuthorityRates[tgOnLine]) {
-                        authorityBreakdown = cache.taxGroupToAuthorityRates[tgOnLine].map(function (ar) {
-                            return {
-                                authorityId: ar.authorityId,
-                                name: ar.name,
-                                state: ar.state,
-                                rate: ar.rate*100,
-                                amount: baseAmt * (ar.rate)   // not rounded, per your #2
-                            };
+                    var nonTaxable = taxable === true || taxable === 'T';
+                    var taxAmt = nonTaxable ? 0 : round(baseAmt * (totalRate / 100), 2);
+                    var lineAmt = nonTaxable ? baseAmt : round(baseAmt + taxAmt, 2);
+                    var authorities = cache.taxGroupToAuthorityRates[tgOnLine] || [];
+                    var authorityBreakdown = hasManualRate
+                        ? allocateOverride(authorities, totalRate, taxAmt)
+                        : authorities.map(function (ar) {
+                            return { authorityId: ar.authorityId, name: ar.name, state: ar.state,
+                                rate: ar.rate * 100, amount: nonTaxable ? 0 : baseAmt * ar.rate };
                         });
-                    }
-
-                     log.debug('authorityBreakdown', authorityBreakdown)
-
-                  
-
-                    var baseAmt = qty * unitCost;
-                    var taxAmt  = round(baseAmt * (totalRate / 100), 2);
-                    var lineAmt = round(baseAmt + taxAmt, 2);
-
-                    if (taxable) {
-                      taxAmt = 0;
-                      lineAmt = baseAmt;
-                      for (xy = 0; xy < authorityBreakdown.length; xy++) {
-                        authorityBreakdown[xy].amount = 0;
-                      }
-                    }
-                  
+                    log.debug('authorityBreakdown', authorityBreakdown);
 
                     rec.setSublistValue({
                         sublistId: sublistId,
@@ -595,6 +574,38 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
             total.updateDisplayType({ displayType: ui.FieldDisplayType.INLINE });
             form.insertField({ field: total, nextfield: CONFIG.headerFields.estimatedTotal });
             form.getField({ id: CONFIG.headerFields.estimatedTotal }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN });
+        }
+
+        function allocateOverride(authorities, rate, lineTax) {
+            var groupRate = authorities.reduce((sum, ar) => sum + ar.rate, 0);
+            if (!groupRate) {
+                // A manual rate alone does not identify a taxing authority.
+                return rate || lineTax ? [{ authorityId: null, name: 'Unallocated override',
+                    state: '', rate: rate, amount: lineTax }] : [];
+            }
+
+            // Round cumulative shares in a stable order so the final amounts
+            // sum to the actual signed line tax, including any rounding cent.
+            var sorted = authorities.slice().sort((a, b) =>
+                String(a.authorityId).localeCompare(String(b.authorityId)) ||
+                String(a.state).localeCompare(String(b.state)));
+            var totalCents = Math.round(Math.abs(lineTax) * 100);
+            var allocated = 0;
+            var cumulativeRate = 0;
+            return sorted.map(function (ar, index) {
+                cumulativeRate += ar.rate;
+                var cumulativeCents = index === sorted.length - 1 ? totalCents :
+                    Math.round(totalCents * cumulativeRate / groupRate);
+                var cents = cumulativeCents - allocated;
+                allocated = cumulativeCents;
+                return {
+                    authorityId: ar.authorityId,
+                    name: ar.name,
+                    state: ar.state,
+                    rate: Number((rate * ar.rate / groupRate).toFixed(10)),
+                    amount: (lineTax < 0 ? -cents : cents) / 100
+                };
+            });
         }
 
         function getTaxGroupFromLocation(locationId) {
