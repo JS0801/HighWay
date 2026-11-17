@@ -15,7 +15,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
   try {
     transactionId = transactionRecord.getId();
     var headerAccountId = transactionRecord.getFieldValue('account');
-    var fixedTaxAccountId = 541;
+    var fixedTaxAccountId = 959;
     logDetails('DEBUG', 'Start', 'header account=' + headerAccountId +
       ' | tax account=' + fixedTaxAccountId + ' | book=' + (book ? book.getId() : ''));
 
