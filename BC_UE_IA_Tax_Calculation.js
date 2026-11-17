@@ -56,6 +56,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                 log.debug('lineCount', lineCount)
                 if (!lineCount) return;
 
+                var jobIssue = isJobIssue(rec);
                 var subtotal = 0;      // <<< NEW
                 var totalTax = 0;      // <<< NEW
                 var totalAmount = 0;   // <<< NEW
@@ -175,6 +176,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                         value: taxAmt
                     });
 
+                    if (jobIssue) lineAmt = Math.abs(lineAmt);
                     rec.setSublistValue({
                         sublistId: sublistId,
                         fieldId: f.amount,
@@ -229,9 +231,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                 var totalTax = 0;
                 var totalAmount = 0;
 
-                var jobWithdrawal = String(rec.getValue({
-                    fieldId: 'custbody_atlas_inv_adj_reason'
-                })) === '1'; // Highway Specialty: JOB MATERIALS
+                var jobWithdrawal = isJobIssue(rec);
                 var estimatedSummary = false;
                 var taxByGroupName = {};
 
@@ -257,7 +257,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                         line: i
                     })) || 0;
 
-                    if (qty >= 0) jobWithdrawal = false;
+
                     var baseAmt = qty * unitCost;
                     subtotal += baseAmt;
 
@@ -289,13 +289,13 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                 }
 
                 if (jobWithdrawal) {
-                    // Use posted inventory relief. The separate custom use-tax lines
-                    // post to Materials and Tax Payable and are excluded here.
-                    var relief = getPostedInventoryRelief(rec.id);
-                    estimatedSummary = relief === null;
-                    subtotal = estimatedSummary ? Math.abs(subtotal) : relief;
-                    totalTax = -totalTax;
-                    totalAmount = round(subtotal + totalTax, 2);
+                    var costs = jobCosts(rec);
+                    estimatedSummary = costs.estimated;
+                    subtotal = costs.materials;
+                    totalTax = costs.tax;
+                    totalAmount = costs.total;
+                    showJobAmounts(form, costs);
+
                 }
                 if (!subtotal && !totalTax && !totalAmount && !jobWithdrawal) return;
 
@@ -433,6 +433,13 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
             // >>> set the new cost value you want to push to FAM assets
             var NEW_COST = iaRec.getValue('custbody_estimated_total_value'); 
 
+            // Keep the FAM workflow on its existing valuation basis. Its input
+            // was captured above before synchronizing the job reporting fields.
+            if (isJobIssue(iaRec) || context.type === context.UserEventType.XEDIT) {
+                var saved = record.load({ type: record.Type.INVENTORY_ADJUSTMENT, id: iaId });
+                if (isJobIssue(saved)) syncJobAmounts(saved, jobCosts(saved));
+            }
+
             // Search FAM assets linked to this IA whose current cost != NEW_COST
             var assetSearch = search.create({
                 type: 'customrecord_ncfar_asset',
@@ -480,27 +487,113 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
 
         // ---------------------------- HELPERS ---------------------------- //
 
-        function getPostedInventoryRelief(iaId) {
-            try {
-                var sql = [
-                    'SELECT SUM(NVL(gl.credit, 0) - NVL(gl.debit, 0)) AS relief',
-                    'FROM TransactionAccountingLine gl',
-                    'JOIN TransactionLine ln ON ln.transaction = gl.transaction',
-                    ' AND ln.id = gl.transactionline',
-                    'JOIN Item item ON item.id = ln.item AND item.assetaccount = gl.account',
-                    "WHERE gl.transaction = ? AND gl.posting = 'T'"
-                ];
-                if (runtime.isFeatureInEffect({ feature: 'MULTIBOOK' })) {
-                    sql.push("AND gl.accountingbook IN (SELECT id FROM AccountingBook WHERE isprimary = 'T')");
-                }
-                var row = query.runSuiteQL({ query: sql.join(' '), params: [Number(iaId)] })
-                    .asMappedResults()[0];
-                if (!row || row.relief == null) return null;
-                return round(Number(row.relief), 2);
-            } catch (e) {
-                log.error('Posted inventory cost unavailable for IA ' + iaId, e);
-                return null;
+        function valueAt(rec, id, i) {
+            return rec.getSublistValue({ sublistId: 'inventory', fieldId: id, line: i });
+        }
+
+        function isJobIssue(rec) {
+            if (String(rec.getValue({ fieldId: 'custbody_atlas_inv_adj_reason' })) !== '1') return false;
+            var count = rec.getLineCount({ sublistId: 'inventory' });
+            for (var i = 0; i < count; i++) {
+                if (!(Number(valueAt(rec, 'adjustqtyby', i)) < 0)) return false;
             }
+            return count > 0;
+        }
+
+        function postedRows(rec) {
+            // Aggregate split GL postings by transaction line, never by item or row position.
+            var sql = [
+                'SELECT ln.uniquekey AS linekey, ln.id AS lineid,',
+                'SUM(NVL(gl.credit, 0) - NVL(gl.debit, 0)) AS relief',
+                'FROM TransactionAccountingLine gl',
+                'JOIN TransactionLine ln ON ln.transaction = gl.transaction AND ln.id = gl.transactionline',
+                'JOIN Item it ON it.id = ln.item AND it.assetaccount = gl.account',
+                "WHERE gl.transaction = ? AND gl.posting = 'T'"
+            ];
+            if (runtime.isFeatureInEffect({ feature: 'MULTIBOOK' })) {
+                sql.push("AND gl.accountingbook IN (SELECT id FROM AccountingBook WHERE isprimary = 'T')");
+            }
+            sql.push('GROUP BY ln.uniquekey, ln.id');
+            return query.runSuiteQL({ query: sql.join(' '), params: [Number(rec.id)] }).asMappedResults();
+        }
+
+        function jobCosts(rec) {
+            var rows = [];
+            try {
+                rows = postedRows(rec);
+            } catch (e) {
+                log.error('Posted job cost unavailable for IA ' + rec.id, e);
+            }
+            var byKey = new Map(rows.map(r => [String(r.linekey), r]));
+            var byId = new Map(rows.map(r => [String(r.lineid), r]));
+            var used = new Set();
+            var count = rec.getLineCount({ sublistId: 'inventory' });
+            var fields = rec.getSublistFields({ sublistId: 'inventory' });
+            var result = { amounts: [], materials: 0, tax: 0, total: 0, estimated: false };
+            for (var i = 0; i < count; i++) {
+                var row = null;
+                if (count === 1 && rows.length === 1) {
+                    row = rows[0];
+                } else {
+                    row = fields.includes('lineuniquekey') && byKey.get(String(valueAt(rec, 'lineuniquekey', i)));
+                    if (!row && fields.includes('line')) row = byId.get(String(valueAt(rec, 'line', i)));
+                }
+                var material;
+                if (row && row.relief != null && !used.has(row) && Number.isFinite(Number(row.relief))) {
+                    material = round(Number(row.relief), 2);
+                    used.add(row);
+                } else {
+                    result.estimated = true;
+                    material = round(Math.abs(Number(valueAt(rec, 'adjustqtyby', i)) *
+                        Number(valueAt(rec, 'unitcost', i) || 0)), 2);
+                }
+                var tax = Math.abs(Number(valueAt(rec, CONFIG.lineFields.taxAmount, i)) || 0);
+                result.amounts.push(round(material + tax, 2));
+                result.materials += material;
+                result.tax += tax;
+                result.total += result.amounts[i];
+            }
+            result.total = round(result.total, 2);
+            return result;
+        }
+
+        function syncJobAmounts(rec, costs) {
+            var changed = false;
+            costs.amounts.forEach(function (amount, i) {
+                var old = valueAt(rec, CONFIG.lineFields.amount, i);
+                if (old == null || old === '' || Number(old) !== amount) {
+                    rec.setSublistValue({ sublistId: 'inventory', fieldId: CONFIG.lineFields.amount,
+                        line: i, value: amount });
+                    changed = true;
+                }
+            });
+            Object.values(CONFIG.headerFields).forEach(function (id) {
+                var old = rec.getValue({ fieldId: id });
+                if (old == null || old === '' || Number(old) !== costs.total) {
+                    rec.setValue({ fieldId: id, value: costs.total });
+                    changed = true;
+                }
+            });
+            if (changed) rec.save({ enableSourcing: false });
+        }
+
+        function showJobAmounts(form, costs) {
+            // Costing can finish between saves. Render the current values even on older records.
+            var label = costs.estimated ? 'Estimated Job Cost' : 'Job Cost';
+            var list = form.getSublist({ id: 'inventory' });
+            var amount = list.addField({ id: 'custpage_bc_job_amount', type: ui.FieldType.CURRENCY,
+                label: label + ' (incl. Use Tax)' });
+            amount.updateDisplayType({ displayType: ui.FieldDisplayType.INLINE });
+            costs.amounts.forEach(function (value, i) {
+                list.setSublistValue({ id: amount.id, line: i, value: value.toFixed(2) });
+            });
+            list.getField({ id: CONFIG.lineFields.amount }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN });
+            var total = form.addField({ id: 'custpage_bc_total_job_cost', type: ui.FieldType.CURRENCY,
+                label: costs.estimated ? 'Estimated Total Job Cost' : 'Total Job Cost' });
+            total.defaultValue = costs.total.toFixed(2);
+            total.updateDisplayType({ displayType: ui.FieldDisplayType.INLINE });
+            form.insertField({ field: total, nextfield: CONFIG.headerFields.estimatedTotal });
+            form.getField({ id: CONFIG.headerFields.estimatedTotal }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN });
         }
 
         function getTaxGroupFromLocation(locationId) {
