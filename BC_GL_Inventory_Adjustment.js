@@ -156,7 +156,12 @@ function reclassJobMaterials(rec, standard, custom, materialsId, segments, count
   }
 
   var groups = {};
-  var accountNumbers = {};
+  // Verified from the 13000 Inventory register link on Production IA1059.
+  var inventoryAccountId = 128;
+  var candidates = [];
+  var detailBalance = 0;
+  var zeroIdRows = [];
+
   var inventoryMoves = [];
   var blank = [0, 0, 0];
   function dimensions(line) {
@@ -181,18 +186,37 @@ function reclassJobMaterials(rec, standard, custom, materialsId, segments, count
 
   for (var i = 0; i < standard.getCount(); i++) {
     var row = standard.getLine(i);
-    if (!row.isPosting() || row.getId() == 0 || !row.getAccountId()) continue;
-    var account = row.getAccountId();
+    if (!row.isPosting()) continue;
+    var account = Number(row.getAccountId());
+    if (account !== Number(materialsId) && account !== inventoryAccountId) continue;
     var cents = Math.round(Number(row.getDebitAmount() || 0) * 100) -
       Math.round(Number(row.getCreditAmount() || 0) * 100);
     if (!cents) continue;
-    var isMaterials = account == materialsId;
-    if (!isMaterials) {
-      if (!(account in accountNumbers)) {
-        accountNumbers[account] = nlapiLookupField('account', account, 'number');
-      }
-      if (String(accountNumbers[account]) !== '13000') continue;
+    var entry = { row: row, account: account, cents: cents };
+    log('DEBUG', 'Standard posting', 'index=' + i + ' | line id=' + row.getId() +
+      ' | account=' + account + ' | cents=' + cents + ' | dims=' + dimensions(row).join('/'));
+    if (Number(row.getId()) === 0) {
+      zeroIdRows.push(entry);
+    } else {
+      candidates.push(entry);
+      detailBalance += cents;
     }
+  }
+
+  // Some IAs expose their sole adjustment-account posting on line ID zero.
+  // Prefer balanced detail; do not count a duplicate summary debit.
+  if (detailBalance && zeroIdRows.length === 1 && detailBalance + zeroIdRows[0].cents === 0) {
+    candidates.push(zeroIdRows[0]);
+  }
+  if (!candidates.length && zeroIdRows.length) {
+    throw new Error('Unable to identify paired inventory and materials postings');
+  }
+  for (var n = 0; n < candidates.length; n++) {
+    var posting = candidates[n];
+    row = posting.row;
+    account = posting.account;
+    cents = posting.cents;
+    var isMaterials = account === Number(materialsId);
     if ((isMaterials && cents < 0) || (!isMaterials && cents > 0)) {
       throw new Error('Unexpected posting direction on job withdrawal, account ' + account);
     }
@@ -217,7 +241,7 @@ function reclassJobMaterials(rec, standard, custom, materialsId, segments, count
 
   Object.keys(groups).forEach(function (key) {
     if (groups[key].balance !== 0) {
-      throw new Error('Materials and 13000 Inventory do not reconcile for department/location ' + key);
+      throw new Error('Materials and 13000 Inventory do not reconcile for department/location ' + key + '; difference in cents=' + groups[key].balance);
     }
   });
   Object.keys(groups).forEach(function (key) {
