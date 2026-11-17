@@ -2,8 +2,8 @@
  * @NApiVersion 2.1
  * @NScriptType UserEventScript
  */
-define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
-    function (ui, search, log, record) {
+define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runtime'],
+    function (ui, search, log, record, query, runtime) {
 
         // ================ CONFIG: KEEP IDS IN SYNC WITH CLIENT ================ //
         var CONFIG = {
@@ -229,6 +229,10 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                 var totalTax = 0;
                 var totalAmount = 0;
 
+                var jobWithdrawal = String(rec.getValue({
+                    fieldId: 'custbody_atlas_inv_adj_reason'
+                })) === '1'; // Highway Specialty: JOB MATERIALS
+                var estimatedSummary = false;
                 var taxByGroupName = {};
 
                 for (var i = 0; i < lineCount; i++) {
@@ -253,6 +257,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                         line: i
                     })) || 0;
 
+                    if (qty >= 0) jobWithdrawal = false;
                     var baseAmt = qty * unitCost;
                     subtotal += baseAmt;
 
@@ -283,7 +288,16 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                     }
                 }
 
-                if (!subtotal && !totalTax && !totalAmount) return;
+                if (jobWithdrawal) {
+                    // Use posted inventory relief. The separate custom use-tax lines
+                    // post to Materials and Tax Payable and are excluded here.
+                    var relief = getPostedInventoryRelief(rec.id);
+                    estimatedSummary = relief === null;
+                    subtotal = estimatedSummary ? Math.abs(subtotal) : relief;
+                    totalTax = -totalTax;
+                    totalAmount = round(subtotal + totalTax, 2);
+                }
+                if (!subtotal && !totalTax && !totalAmount && !jobWithdrawal) return;
 
                 // ---------- SUMMARY BOX HTML (unchanged except data) ----------
                 var html = [];
@@ -322,21 +336,21 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
 
                 html.push('<div id="steSummaryBoxWrapper">');
                 html.push('  <div id="steSummaryBox">');
-                html.push('    <div id="steSummaryHeader">Summary</div>');
+                html.push('    <div id="steSummaryHeader">' + (estimatedSummary ? 'Summary (estimated)' : 'Summary') + '</div>');
                 html.push('    <table id="steSummaryTable">');
 
                 html.push('      <tr>');
-                html.push('        <td class="ste-summary-label">SUBTOTAL</td>');
+                html.push('        <td class="ste-summary-label">' + (jobWithdrawal ? 'Materials Cost' : 'SUBTOTAL') + '</td>');
                 html.push('        <td class="ste-summary-value">' + formatCurrency(subtotal) + '</td>');
                 html.push('      </tr>');
 
                 html.push('      <tr>');
-                html.push('        <td class="ste-summary-label">TAX TOTAL</td>');
+                html.push('        <td class="ste-summary-label">' + (jobWithdrawal ? 'Use Tax Total' : 'TAX TOTAL') + '</td>');
                 html.push('        <td class="ste-summary-value">' + formatCurrency(totalTax) + '</td>');
                 html.push('      </tr>');
 
                 html.push('      <tr class="ste-summary-total-row">');
-                html.push('        <td class="ste-summary-label">TOTAL</td>');
+                html.push('        <td class="ste-summary-label">' + (jobWithdrawal ? 'Total Job Cost' : 'TOTAL') + '</td>');
                 html.push('        <td class="ste-summary-value">' + formatCurrency(totalAmount) + '</td>');
                 html.push('      </tr>');
 
@@ -465,6 +479,29 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
     }
 
         // ---------------------------- HELPERS ---------------------------- //
+
+        function getPostedInventoryRelief(iaId) {
+            try {
+                var sql = [
+                    'SELECT SUM(NVL(gl.credit, 0) - NVL(gl.debit, 0)) AS relief',
+                    'FROM TransactionAccountingLine gl',
+                    'JOIN TransactionLine ln ON ln.transaction = gl.transaction',
+                    ' AND ln.id = gl.transactionline',
+                    'JOIN Item item ON item.id = ln.item AND item.assetaccount = gl.account',
+                    "WHERE gl.transaction = ? AND gl.posting = 'T'"
+                ];
+                if (runtime.isFeatureInEffect({ feature: 'MULTIBOOK' })) {
+                    sql.push("AND gl.accountingbook IN (SELECT id FROM AccountingBook WHERE isprimary = 'T')");
+                }
+                var row = query.runSuiteQL({ query: sql.join(' '), params: [Number(iaId)] })
+                    .asMappedResults()[0];
+                if (!row || row.relief == null) return null;
+                return round(Number(row.relief), 2);
+            } catch (e) {
+                log.error('Posted inventory cost unavailable for IA ' + iaId, e);
+                return null;
+            }
+        }
 
         function getTaxGroupFromLocation(locationId) {
             if (!locationId) return '';
