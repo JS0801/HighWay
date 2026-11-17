@@ -16,7 +16,8 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                 taxGroup: 'custcol_ste_tax_group',  // custom column: Use Tax Group
                 taxRate: 'custcol3',                // custom column: Use Tax Rate (percent)
                 taxAmount: 'custcol4',              // custom column: Use Tax Amount
-                nonTax: 'custcol_nontaxable'        // custom column: Non Tax Line
+                nonTax: 'custcol_nontaxable',        // custom column: Non Tax Line
+                taxBreakdown: 'custcol_bc_tax_object' 
             },
             headerFields: {
                 estimatedTotal: 'custbody_estimated_total_value',   // header total box
@@ -29,14 +30,18 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                 tgLineTaxCodeField: 'custrecord_ste_tg_line_tax_code',
                 taxRateRecord: 'customrecord_ste_taxrate',
                 taxRateTaxCodeField: 'custrecord_ste_taxrate_taxcode',
-                taxRateValueField: 'custrecord_ste_taxrate_rate'
+                taxRateValueField: 'custrecord_ste_taxrate_rate',
+                taxRateAuthorityField: 'custrecord_ste_taxcode_imposeauthority',
+                taxRateAuthorityJoin: 'CUSTRECORD_STE_TAXRATE_TAXCODE',
+                taxRateStateField: 'custrecord_ste_taxcode_state'
             }
         };
         // ==================================================================== //
 
         var cache = {
             locationToTaxGroup: {},
-            taxGroupToRate: {}
+            taxGroupToRate: {},
+            taxGroupToAuthorityRates: {}
         };
 
         // --------------------------- BEFORE SUBMIT --------------------------- //
@@ -48,6 +53,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                 var f = CONFIG.lineFields;
 
                 var lineCount = rec.getLineCount({ sublistId: sublistId });
+                log.debug('lineCount', lineCount)
                 if (!lineCount) return;
 
                 var subtotal = 0;      // <<< NEW
@@ -79,6 +85,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
 
                     if (!tgOnLine && locationId) {
                         var tgId = getTaxGroupFromLocation(locationId);
+                        log.debug('tgId', tgId)
                         if (tgId) {
                             rec.setSublistValue({
                                 sublistId: sublistId,
@@ -107,6 +114,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                     if (tgOnLine) {
                         totalRate = getTaxRateFromTaxGroup(tgOnLine); // decimal, e.g. 0.0725
                         totalRate = Number(totalRate * 100);           // percent, e.g. 7.25
+                        log.debug('totalRate', totalRate)
                     }
 
                     // If tax rate is already set (e.g. manually), honor it
@@ -119,6 +127,25 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                         totalRate = parseFloat(existingRate) || 0;
                     }
 
+                    var baseAmt = qty * unitCost;
+                    
+
+                    // NEW — per-authority breakdown, built off the tax group lookup only (not the manual override)
+                    var authorityBreakdown = [];
+                    if (tgOnLine && cache.taxGroupToAuthorityRates[tgOnLine]) {
+                        authorityBreakdown = cache.taxGroupToAuthorityRates[tgOnLine].map(function (ar) {
+                            return {
+                                authorityId: ar.authorityId,
+                                name: ar.name,
+                                state: ar.state,
+                                rate: ar.rate*100,
+                                amount: baseAmt * (ar.rate)   // not rounded, per your #2
+                            };
+                        });
+                    }
+
+                     log.debug('authorityBreakdown', authorityBreakdown)
+
                   
 
                     var baseAmt = qty * unitCost;
@@ -128,6 +155,9 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                     if (taxable) {
                       taxAmt = 0;
                       lineAmt = baseAmt;
+                      for (xy = 0; xy < authorityBreakdown.length; xy++) {
+                        authorityBreakdown[xy].amount = 0;
+                      }
                     }
                   
 
@@ -150,6 +180,13 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                         fieldId: f.amount,
                         line: i,
                         value: lineAmt
+                    });
+                  
+                    rec.setSublistValue({
+                        sublistId: sublistId,
+                        fieldId: f.taxBreakdown,
+                        line: i,
+                        value: JSON.stringify(authorityBreakdown)
                     });
 
                     // --- accumulate for header & summary ---  <<< NEW
@@ -471,7 +508,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                     [ste.tgLineTaxGroupField, 'anyof', taxGroupId]
                 ],
                 columns: [
-                    search.createColumn({ name: ste.tgLineTaxCodeField })
+                    search.createColumn({ name: ste.tgLineTaxCodeField }),
                 ]
             });
 
@@ -487,6 +524,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
             }
 
             var totalRate = 0;
+            var authorityRates = [];
 
             var rateSearch = search.create({
                 type: ste.taxRateRecord,
@@ -497,21 +535,69 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record'],
                     search.createColumn({
                         name: ste.taxRateValueField,
                         summary: search.Summary.SUM
+                    }),
+                    search.createColumn({
+                        name: ste.taxRateAuthorityField,
+                        join: ste.taxRateAuthorityJoin,
+                        summary: "GROUP"
+                    }),
+                    search.createColumn({
+                        name: ste.taxRateStateField,      // NEW
+                        join: ste.taxRateAuthorityJoin,
+                        summary: 'GROUP'
                     })
+                    
                 ]
             });
 
-            rateSearch.run().each(function (res) {
+            // rateSearch.run().each(function (res) {
+            //     var v = res.getValue({
+            //         name: ste.taxRateValueField,
+            //         summary: search.Summary.SUM
+            //     }) || 0;
+            //     totalRate = parseFloat(v) || 0;
+            //     return false;
+            // });
+
+                     rateSearch.run().each(function (res) {
                 var v = res.getValue({
                     name: ste.taxRateValueField,
                     summary: search.Summary.SUM
                 }) || 0;
-                totalRate = parseFloat(v) || 0;
-                return false;
+                var rate = parseFloat(v) || 0;
+
+                var authorityId = res.getValue({
+                    name: ste.taxRateAuthorityField,
+                    join: ste.taxRateAuthorityJoin,
+                    summary: 'GROUP'
+                });
+
+                var authorityName = res.getText({          // NEW — display name of the authority
+                    name: ste.taxRateAuthorityField,
+                    join: ste.taxRateAuthorityJoin,
+                    summary: 'GROUP'
+                });
+
+                var authorityState = res.getValue({         // NEW
+                    name: ste.taxRateStateField,
+                    join: ste.taxRateAuthorityJoin,
+                    summary: 'GROUP'
+                });
+
+                totalRate += rate;
+                authorityRates.push({
+                    authorityId: authorityId,
+                    name: authorityName,
+                    state: authorityState,
+                    rate: rate
+                });
+
+                return true;   
             });
 
             cache.taxGroupToRate[taxGroupId] = totalRate;
-            return totalRate;
+            cache.taxGroupToAuthorityRates[taxGroupId] = authorityRates;        
+            return totalRate;   
         }
 
         function round(v, d) {
