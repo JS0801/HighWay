@@ -4,6 +4,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
   var transactionId = '';
   var pairsCreated = 0;
   var skipped = 0;
+  var segmentIds = ['cseg_bc_project', 'cseg_bc_cost_code', 'cseg1'];
 
   function logDetails(level, title, details) {
     nlapiLogExecution(level, 'IA Tax GL | ' + title,
@@ -105,6 +106,17 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
       stage = 'Set tax location and memo';
       if (locationId) taxLine.setLocationId(parseInt(locationId, 10));
       taxLine.setMemo(memo);
+      var assignments = [];
+      for (var j = 0; j < segmentIds.length; j++) {
+        var segmentId = segmentIds[j];
+        stage = 'Copy cost segment ' + segmentId;
+        var segmentValue = transactionRecord.getLineItemValue('inventory', segmentId, l);
+        if (segmentValue) {
+          headerLine.setSegmentValueId(segmentId, parseInt(segmentValue, 10));
+        }
+        assignments.push(segmentId + '=' + (segmentValue || '(blank)'));
+      }
+      logDetails('DEBUG', 'Cost line segments', assignments.join(' | '));
       pairsCreated++;
       logDetails('DEBUG', 'Pair built', 'debit account=' +
         (headerIsDebit ? headerAccountId : fixedTaxAccountId) + ' | credit account=' +
@@ -118,5 +130,6 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
     var message = e && (typeof e.getDetails === 'function' ? e.getDetails() : e.message);
     logDetails('ERROR', 'Custom GL Error', 'stage=' + stage + ' | pairs built=' +
       pairsCreated + ' | ' + (code || 'Error') + ': ' + (message || String(e)));
+    if (stage.indexOf('Copy cost segment ') === 0) throw e;
   }
 }
