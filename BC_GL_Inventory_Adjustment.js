@@ -1,8 +1,7 @@
 function customizeGlImpact(transactionRecord, standardLines, customLines, book) {
   try {
     var headerAccountId = transactionRecord.getFieldValue('account'); // IA header account
-    nlapiLogExecution('DEBUG', 'headerAccountId', headerAccountId);
-    var fixedTaxAccountId = 959; // tax clearing / liability
+    var fixedTaxAccountId = 541; // tax clearing / liability
 
     if (!headerAccountId) return;
 
