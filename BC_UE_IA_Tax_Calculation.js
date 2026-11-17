@@ -559,15 +559,10 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
 
         function showJobAmounts(form, costs) {
             // Costing can finish between saves. Render the current values even on older records.
-            var label = costs.estimated ? 'Estimated Job Cost' : 'Job Cost';
             var list = form.getSublist({ id: 'inventory' });
-            var amount = list.addField({ id: 'custpage_bc_job_amount', type: ui.FieldType.CURRENCY,
-                label: label + ' (incl. Use Tax)' });
-            amount.updateDisplayType({ displayType: ui.FieldDisplayType.INLINE });
             costs.amounts.forEach(function (value, i) {
-                list.setSublistValue({ id: amount.id, line: i, value: value.toFixed(2) });
+                list.setSublistValue({ id: CONFIG.lineFields.amount, line: i, value: value.toFixed(2) });
             });
-            list.getField({ id: CONFIG.lineFields.amount }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN });
             var total = form.addField({ id: 'custpage_bc_total_job_cost', type: ui.FieldType.CURRENCY,
                 label: costs.estimated ? 'Estimated Total Job Cost' : 'Total Job Cost' });
             total.defaultValue = costs.total.toFixed(2);
