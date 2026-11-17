@@ -4,6 +4,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
   var transactionId = '';
   var pairsCreated = 0;
   var skipped = 0;
+  var reclassInScope = false;
   var segmentIds = ['cseg_bc_project', 'cseg_bc_cost_code', 'cseg1'];
 
   function logDetails(level, title, details) {
@@ -52,6 +53,14 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
       ' | header has credit=' + headerIsCredit +
       ' | chosen header side=' + (headerIsDebit ? 'debit' : 'credit') +
       ' | inventory lines=' + lineCount);
+
+    if (String(transactionRecord.getFieldValue('custbody_atlas_inv_adj_reason')) === '1' &&
+        headerIsDebit && !headerIsCredit && lineCount) {
+      reclassInScope = true;
+      stage = 'Reclassify job materials';
+      reclassJobMaterials(transactionRecord, standardLines, customLines, headerAccountId,
+        segmentIds, lineCount, logDetails);
+    }
 
     for (var l = 1; l <= lineCount; l++) {
       lineNumber = l;
@@ -130,6 +139,97 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
     var message = e && (typeof e.getDetails === 'function' ? e.getDetails() : e.message);
     logDetails('ERROR', 'Custom GL Error', 'stage=' + stage + ' | pairs built=' +
       pairsCreated + ' | ' + (code || 'Error') + ': ' + (message || String(e)));
-    if (stage.indexOf('Copy cost segment ') === 0) throw e;
+    if (reclassInScope || stage.indexOf('Copy cost segment ') === 0) throw e;
   }
+}
+
+// Standard lines are read-only. Reclassify within each account using posted
+// amounts, retaining the department, class and location of the original side.
+function reclassJobMaterials(rec, standard, custom, materialsId, segments, count, log) {
+  var lineTags = {};
+  for (var l = 1; l <= count; l++) {
+    if (!(Number(rec.getLineItemValue('inventory', 'adjustqtyby', l)) < 0)) return;
+    var values = segments.map(function (id) {
+      return Number(rec.getLineItemValue('inventory', id, l)) || 0;
+    });
+    lineTags[values.join('/')] = true;
+  }
+
+  var groups = {};
+  var accountNumbers = {};
+  var inventoryMoves = [];
+  var blank = [0, 0, 0];
+  function dimensions(line) {
+    return [line.getDepartmentId(), line.getLocationId(), line.getClassId()];
+  }
+  function addLine(account, dims, tags, cents, memo) {
+    var line = custom.addNewLine();
+    line.setAccountId(Number(account));
+    if (cents > 0) line.setDebitAmount((cents / 100).toFixed(2));
+    else line.setCreditAmount((-cents / 100).toFixed(2));
+    if (dims[0]) line.setDepartmentId(Number(dims[0]));
+    if (dims[1]) line.setLocationId(Number(dims[1]));
+    if (dims[2]) line.setClassId(Number(dims[2]));
+    segments.forEach(function (id, i) {
+      if (tags[i]) line.setSegmentValueId(id, tags[i]);
+      else if (line.getSegmentValueId(id)) {
+        throw new Error('Unexpected sourced segment ' + id + ' on ' + memo);
+      }
+    });
+    line.setMemo(memo);
+  }
+
+  for (var i = 0; i < standard.getCount(); i++) {
+    var row = standard.getLine(i);
+    if (!row.isPosting() || row.getId() == 0 || !row.getAccountId()) continue;
+    var account = row.getAccountId();
+    var cents = Math.round(Number(row.getDebitAmount() || 0) * 100) -
+      Math.round(Number(row.getCreditAmount() || 0) * 100);
+    if (!cents) continue;
+    var isMaterials = account == materialsId;
+    if (!isMaterials) {
+      if (!(account in accountNumbers)) {
+        accountNumbers[account] = nlapiLookupField('account', account, 'number');
+      }
+      if (String(accountNumbers[account]) !== '13000') continue;
+    }
+    if ((isMaterials && cents < 0) || (!isMaterials && cents > 0)) {
+      throw new Error('Unexpected posting direction on job withdrawal, account ' + account);
+    }
+    var dims = dimensions(row);
+    var key = dims.slice(0, 2).join('/');
+    var g = groups[key] || (groups[key] = { delta: {}, balance: 0, dims: null });
+    var tags = segments.map(function (id) { return Number(row.getSegmentValueId(id)) || 0; });
+    var tagKey = tags.join('/');
+    if (isMaterials) {
+      if (g.dims && String(g.dims[2] || '') !== String(dims[2] || '')) {
+        throw new Error('Multiple materials classes for department/location ' + key);
+      }
+      g.dims = dims;
+    } else {
+      if (!lineTags[tagKey]) throw new Error('Inventory GL segments do not match an adjustment line');
+      if (tagKey !== blank.join('/')) inventoryMoves.push({ account: account,
+        dims: dims, tags: tags, cents: -cents });
+    }
+    g.balance += cents;
+    g.delta[tagKey] = (g.delta[tagKey] || 0) - cents;
+  }
+
+  Object.keys(groups).forEach(function (key) {
+    if (groups[key].balance !== 0) {
+      throw new Error('Materials and 13000 Inventory do not reconcile for department/location ' + key);
+    }
+  });
+  Object.keys(groups).forEach(function (key) {
+    var g = groups[key];
+    Object.keys(g.delta).forEach(function (tagKey) {
+      if (g.delta[tagKey]) addLine(materialsId, g.dims, tagKey.split('/').map(Number),
+        g.delta[tagKey], 'Job Materials - reclassify materials cost');
+    });
+  });
+  inventoryMoves.forEach(function (move) {
+    addLine(move.account, move.dims, move.tags, move.cents, 'Job Materials - offset tagged inventory');
+    addLine(move.account, move.dims, blank, -move.cents, 'Job Materials - inventory relief');
+  });
+  log('DEBUG', 'Materials reclassification', 'Inventory credits reclassified=' + inventoryMoves.length);
 }
