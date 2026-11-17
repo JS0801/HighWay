@@ -14,6 +14,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                 unitCost: 'unitcost',               // Est. Unit Cost
                 amount: 'custcol5',                 // Amount (base + tax)
                 taxGroup: 'custcol_ste_tax_group',  // custom column: Use Tax Group
+                overrideRate: 'custcol_bc_override_flag',
                 taxRate: 'custcol3',                // custom column: Use Tax Rate (percent)
                 taxAmount: 'custcol4',              // custom column: Use Tax Amount
                 nonTax: 'custcol_nontaxable',        // custom column: Non Tax Line
@@ -114,18 +115,18 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                     var totalRate = 0;
                     if (tgOnLine) {
                         totalRate = getTaxRateFromTaxGroup(tgOnLine); // decimal, e.g. 0.0725
-                        totalRate = Number(totalRate * 100);           // percent, e.g. 7.25
+                        totalRate = Number((totalRate * 100).toFixed(10));           // percent, e.g. 7.25
                         log.debug('totalRate', totalRate)
                     }
 
-                    // If tax rate is already set (e.g. manually), honor it
-                    var existingRate = rec.getSublistValue({
-                        sublistId: sublistId,
-                        fieldId: f.taxRate,
-                        line: i
-                    });
-                    if (existingRate !== '' && existingRate !== null && !isNaN(existingRate)) {
-                        totalRate = parseFloat(existingRate) || 0;
+                    var overrideFlag = valueAt(rec, f.overrideRate, i);
+                    var useOverride = overrideFlag === true || overrideFlag === 'T';
+                    var hasManualRate = false;
+                    if (useOverride) {
+                        var input = valueAt(rec, f.taxRate, i);
+                        var rateText = String(input == null ? '' : input).trim().replace(/%$/, '').trim();
+                        hasManualRate = rateText !== '' && Number.isFinite(Number(rateText));
+                        if (hasManualRate) totalRate = Number(rateText);
                     }
 
                     var baseAmt = qty * unitCost;
@@ -166,7 +167,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
                         sublistId: sublistId,
                         fieldId: f.taxRate,
                         line: i,
-                        value: totalRate ? totalRate.toFixed(2) : ''
+                        value: hasManualRate || totalRate ? totalRate : ''
                     });
 
                     rec.setSublistValue({
