@@ -755,13 +755,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/log', 'N/record', 'N/query', 'N/runt
         intPart = intPart.substring(1);
     }
 
-    // Apply Indian comma formatting
-    if (intPart.length > 3) {
-        var last3 = intPart.slice(-3);
-        var rest = intPart.slice(0, -3);
-        rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
-        intPart = rest + "," + last3;
-    }
+       intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
     return (isNegative ? "-" : "") + intPart + "." + decPart;
 }
